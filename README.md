@@ -1,2 +1,1 @@
-# pathfinding-robot
-Implementation of pathfinding robot using global and local search strategies.
+Project: Pathfinding Robot from CS14003 of VNU-HCMUS
