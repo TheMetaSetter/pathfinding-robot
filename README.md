@@ -3,7 +3,7 @@
 - Welcome to Project: Pathfinding Robot from CS14003: Introduction to Artificial Intelligence of VNU-HCMUS in little beautiful country named Viet Nam.
 
 ## Problem statement
-Given a flat map xOy (quadrant I), on which one places a starting point S(xS, yS) and a destination point G(xG,yG). At the same time, place obstacles as convex polygons so that the polygons are not placed on top of each other or have common points. The map space is limited to a rectangular frame with the lower left corner coinciding with the origin, the thickness of the frame is 1 unit. No point on the map may exceed or overlap this frame.
+Given a flat map xOy (quadrant I), on which one places a starting point $S(x_S, y_S)$ and a destination point $G(x_G,y_G)$. At the same time, place obstacles as convex polygons so that the polygons are not placed on top of each other or have common points. The map space is limited to a rectangular frame with the lower left corner coinciding with the origin, the thickness of the frame is 1 unit. No point on the map may exceed or overlap this frame.
 Choose and install algorithms to find the shortest path from S to G so that the path does not cut through polygons. The path can follow the edge of the polygon but must not overlap its edge. The graphical representation can be at its simplest level so that the user can see the polygons and paths.
 The level of implementation is divided into the following levels:
 - Level 1 (40%): successfully install an algorithm to find the path from S to G. Report back on the algorithm and test run process. Note, test run if there is no road.
