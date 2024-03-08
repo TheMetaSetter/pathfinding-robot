@@ -2,7 +2,18 @@ from map_and_obstacles import Map2d
 from shapely.geometry import Polygon
 
 class MapFileReader:
-    """_summary_
+    """
+    A class to read a map from a file.
+    
+    Attributes:
+    - filename: Name of the file to read the map from.
+    
+    Methods:
+    - readMap2d(): Reads the map from the file and returns a Map2d object.
+    
+    Example:
+    >>> reader = MapFileReader("map.txt")
+    >>> map2d = reader.readMap2d()
     """
     
     def __init__(self, filename: str):

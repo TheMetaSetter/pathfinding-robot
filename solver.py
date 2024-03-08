@@ -7,21 +7,56 @@ from queue import Queue
 from typing import Dict
 
 class Solver(ABC):
-    """Interface for a solver.
+    """
+    An interface for a solver to solve a 2D map problem.
+    
+    Methods:
+    - solve(map2d: Map2d): Solves the 2D map problem and returns a Solution2d object.
+    - __str__(): Returns a string representation of the solver.
     """
         
     @abstractmethod
     def solve(self, map2d: Map2d):
+        """
+        Solves the 2D map problem and returns a Solution2d object.
+        
+        Parameters:
+        - map2d (Map2d): The 2D map to be solved.
+        
+        Returns:
+        - Solution2d: The solution to the 2D map problem.
+        """
+        
         pass
 
 class DijkstraSolver(Solver):
-    """Concrete implementation of the Solver interface using Dijkstra's algorithm.
+    """
+    A class to solve a 2D map problem using Dijkstra's algorithm.
+    
+    Methods:
+    - __init__(): Initializes the DijkstraSolver object.
+    - solve(map2d: Map2d): Solves the 2D map problem and returns a Solution2d object.
+    - __constructPath(node: Node2d): Constructs a path from the start node to the end node.
     """
     
     def __init__(self):
+        """
+        Initializes the DijkstraSolver object.
+        """
+        
         super().__init__()
         
     def solve(self, map2d: Map2d) -> Solution2d:
+        """
+        Solves the 2D map problem using Dijkstra's algorithm.
+        
+        Parameters:
+        - map2d (Map2d): The 2D map to be solved.
+        
+        Returns:
+        - Solution2d: The solution to the 2D map problem.
+        """
+        
         # Dictionary of $node: distance from start$ pair
         distance: Dict[Node2d, int] = {}
         
@@ -67,6 +102,11 @@ class DijkstraSolver(Solver):
         return None
     
     def __constructPath(self, node: Node2d) -> list[Node2d]:
+        """
+        This method constructs the path by following the parent pointers.
+        It takes a node as input and returns a list of nodes.
+        """
+        
         # Construct the path by following the parent pointers
         path = []
         while node:
