@@ -21,5 +21,5 @@ The level of implementation is divided into the following levels:
 
 ## Setup the virtual environment
 - Using terminal to navigate to the project repository on your local machine and run this command ```source bin/activate```. Now you are all set to run this project.
-# Run this project
+## Run this project
 - Click on the ```main.py``` file and run the script without changing anything to ensure that the project is working well.
