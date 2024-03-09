@@ -8,7 +8,13 @@ from solution import Solution2d
 
 class Visualizer2d:
     def __init__(self, solution: Solution2d, map: Map2d):
+        """
+        Initializes the Visualizer2d object with the solution and map.
         
+        Args:
+        - solution: Solution2d object representing the solution path
+        - map: Map2d object representing the 2D map with obstacles and pickup points
+        """
         
         self.__solution = solution
         self.__map = map
