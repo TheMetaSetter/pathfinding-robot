@@ -1,13 +1,14 @@
 from map_and_obstacles import Node2d
 
 class Solution2d:
-    def __init__(self, path: list[Node2d], cost: float):
+    def __init__(self, path: list[Node2d], cost: float, runtime_milisec: float):
         """
         A class to represent a solution to a 2D map problem.
         
         Attributes:
         - path: List of nodes from start to end.
         - cost: Cost of the path.
+        - runtime_milisec: Runtime of the algorithm in miliseconds.
         
         Methods:
         - __str__(): Returns a string representation of the solution.
@@ -24,9 +25,10 @@ class Solution2d:
         
         self.path = path
         self.cost = cost
+        self.runtime_milisec = runtime_milisec
     
     def __str__(self) -> str:
-        return f"Solution2d(path={self.path}, cost={self.cost})"
+        return f"Solution2d(path={self.path}, cost={self.cost}, runtime={self.runtime_milisec})"
     
     def showToConsole(self):
         # Print path, except the last node
@@ -37,6 +39,9 @@ class Solution2d:
         
         # Print cost
         print(f"Cost: {self.cost}")
+        
+        # Print runtime
+        print(f"Runtime: {self.runtime_milisec} miliseconds")
         
     def getPath(self) -> list[tuple]:
         return [node.getState() for node in self.path]

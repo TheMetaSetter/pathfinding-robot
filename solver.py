@@ -1,11 +1,14 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from typing import Dict
+from math import sqrt
+import time
+
 from map_and_obstacles import Map2d, Node2d
 from solution import Solution2d
 from action import Action2d
 from queue import Queue
-from typing import Dict
-from math import sqrt
+
 
 class Solver(ABC):
     """
@@ -27,8 +30,21 @@ class Solver(ABC):
         Returns:
         - Solution2d: The solution to the 2D map problem.
         """
-        
         pass
+        
+    def _constructPath(self, node: Node2d) -> list[Node2d]:
+        """
+        This method constructs the path by following the parent pointers.
+        It takes a node as input and returns a list of nodes.
+        """
+        
+        # Construct the path by following the parent pointers
+        path = []
+        while node:
+            path.append(node)
+            node = node.getParent()
+        path.reverse()
+        return path
 
 class DijkstraSolver(Solver):
     """
@@ -37,7 +53,7 @@ class DijkstraSolver(Solver):
     Methods:
     - __init__(): Initializes the DijkstraSolver object.
     - solve(map2d: Map2d): Solves the 2D map problem and returns a Solution2d object.
-    - __constructPath(node: Node2d): Constructs a path from the start node to the end node.
+    - _constructPath(node: Node2d): Constructs a path from the start node to the end node.
     """
     
     def __init__(self):
@@ -58,6 +74,9 @@ class DijkstraSolver(Solver):
         - Solution2d: The solution to the 2D map problem.
         """
         
+        # Start measuring runtime
+        start = time.perf_counter()
+        
         # Dictionary of $node: distance from start$ pair
         distance: Dict[Node2d, int] = {}
         
@@ -76,8 +95,13 @@ class DijkstraSolver(Solver):
             
             # If the node is the end node, return the path
             if node.getState() == map2d.getEnd():
-                path = self.__constructPath(node)
-                return Solution2d(path, cost_start_to_node)
+                path = self._constructPath(node)
+                
+                # Measure runtime
+                end = time.perf_counter()
+                runtime_milisec = (end - start) * 10**3
+                
+                return Solution2d(path, cost_start_to_node, runtime_milisec)
             
             # Get the neighbors of the node
             neighbors = map2d.getNeighbors(node)
@@ -102,34 +126,20 @@ class DijkstraSolver(Solver):
 
         return None
     
-    def __constructPath(self, node: Node2d) -> list[Node2d]:
-        """
-        This method constructs the path by following the parent pointers.
-        It takes a node as input and returns a list of nodes.
-        """
-        
-        # Construct the path by following the parent pointers
-        path = []
-        while node:
-            path.append(node)
-            node = node.getParent()
-        path.reverse()
-        return path
     
-    
-class A_asterickSolver(Solver):
+class A_asteriskSolver(Solver):
     """
     A class to solve a 2D map problem using A* algorithm.
     
     Methods:
-    - __init__(): Initializes the A* object.
+    - __init__(): Initializes the A_asterickSolver object.
     - solve(map2d: Map2d): Solves the 2D map problem and returns a Solution2d object.
-    - __constructPath(node: Node2d): Constructs a path from the start node to the end node.
+    - _constructPath(node: Node2d): Constructs a path from the start node to the end node.
     """
     
     def __init__(self):
         """
-        Initializes the A* object.
+        Initializes the A_asterickSolver object.
         """
         
         super().__init__()
@@ -144,6 +154,9 @@ class A_asterickSolver(Solver):
         Returns:
         - Solution2d: The solution to the 2D map problem.
         """
+        
+        # Start measuring runtime
+        start = time.perf_counter()
         
         # Dictionary of $node: distance from start$ pair
         distance: Dict[Node2d, int] = {}
@@ -202,17 +215,3 @@ class A_asterickSolver(Solver):
             del distance[node]
 
         return None
-    
-    def __constructPath(self, node: Node2d) -> list[Node2d]:
-        """
-        This method constructs the path by following the parent pointers.
-        It takes a node as input and returns a list of nodes.
-        """
-        
-        # Construct the path by following the parent pointers
-        path = []
-        while node:
-            path.append(node)
-            node = node.getParent()
-        path.reverse()
-        return path
