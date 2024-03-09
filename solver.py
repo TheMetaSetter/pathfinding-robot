@@ -179,6 +179,11 @@ class A_asteriskSolver(Solver):
             # If the node is the end node, return the path
             if node.getState() == map2d.getEnd():
                 path = self._constructPath(node)
+                
+                # Measure runtime
+                end = time.perf_counter()
+                runtime_milisec = (end - start) * 10**3
+                
                 for node in path:
                     this_x_coordinates, this_y_coordinates = node.getState()
                     if (firstIteration):
@@ -187,7 +192,7 @@ class A_asteriskSolver(Solver):
                         continue
                     cost += sqrt((this_x_coordinates - that_x_coordinates)**2 + (this_y_coordinates - that_y_coordinates)**2)
                     that_x_coordinates, that_y_coordinates = node.getState()
-                return Solution2d(path, cost)
+                return Solution2d(path, cost, runtime_milisec)
             
             # Get the neighbors of the node
             neighbors = map2d.getNeighbors(node)
