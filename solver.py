@@ -178,7 +178,7 @@ class A_asteriskSolver(Solver):
             
             # If the node is the end node, return the path
             if node.getState() == map2d.getEnd():
-                path = self.__constructPath(node)
+                path = self._constructPath(node)
                 for node in path:
                     this_x_coordinates, this_y_coordinates = node.getState()
                     if (firstIteration):
