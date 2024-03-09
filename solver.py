@@ -153,6 +153,8 @@ class A_asterickSolver(Solver):
         
         # Closed nodes
         closed: list[Node2d] = []
+        node_x_coordinates, node_y_coordinates = 0, 0
+        end_x_coordinates, end_y_coordinates = 0, 0
         
         while len(distance) > 0:
             # Get the node with the smallest cost from start
@@ -160,11 +162,18 @@ class A_asterickSolver(Solver):
             
             # Add this node to shortest path tree
             closed.append(node)
+            cost = 0
             
             # If the node is the end node, return the path
             if node.getState() == map2d.getEnd():
                 path = self.__constructPath(node)
-                return Solution2d(path, cost_start_to_node)
+                for node in path:
+                    this_x_coordinates, this_y_coordinates = node.getState()
+                    if (node.getParent == None):
+                        continue
+                    that_x_coordinates, that_y_coordinates = node.getParent()
+                    cost = sqrt((that_x_coordinates - this_x_coordinates)**2 + (that_y_coordinates - this_y_coordinates)**2)
+                return Solution2d(path, cost)
             
             # Get the neighbors of the node
             neighbors = map2d.getNeighbors(node)
@@ -178,8 +187,10 @@ class A_asterickSolver(Solver):
                 cost_node_to_neighbor = neighbor.getAction().cost()
                 end_x_coordinates, end_y_coordinates = map2d.getEnd()
                 neighbor_x_coordinates, neighbor_y_coordinates = neighbor.getState()
+                node_x_coordinates, node_y_coordinates = node.getState()
                 cost_neighbor_to_end = sqrt((end_x_coordinates - neighbor_x_coordinates)**2 + (end_y_coordinates - neighbor_y_coordinates)**2)
                 cost_start_to_neighbor = cost_start_to_node + cost_node_to_neighbor + cost_neighbor_to_end
+                
                 if neighbor not in distance or distance[neighbor] > cost_start_to_neighbor:
                     # If the neighbor is already in distance, delete it because its parent will be changed.
                     if neighbor in distance:
