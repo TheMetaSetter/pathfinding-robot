@@ -153,8 +153,6 @@ class A_asterickSolver(Solver):
         
         # Closed nodes
         closed: list[Node2d] = []
-        node_x_coordinates, node_y_coordinates = 0, 0
-        end_x_coordinates, end_y_coordinates = 0, 0
         
         while len(distance) > 0:
             # Get the node with the smallest cost from start
@@ -162,6 +160,7 @@ class A_asterickSolver(Solver):
             
             # Add this node to shortest path tree
             closed.append(node)
+            firstIteration = True
             cost = 0
             
             # If the node is the end node, return the path
@@ -169,10 +168,12 @@ class A_asterickSolver(Solver):
                 path = self.__constructPath(node)
                 for node in path:
                     this_x_coordinates, this_y_coordinates = node.getState()
-                    if (node.getParent == None):
+                    if (firstIteration):
+                        firstIteration = False
+                        that_x_coordinates, that_y_coordinates = node.getState()
                         continue
-                    that_x_coordinates, that_y_coordinates = node.getParent()
-                    cost = sqrt((that_x_coordinates - this_x_coordinates)**2 + (that_y_coordinates - this_y_coordinates)**2)
+                    cost += sqrt((this_x_coordinates - that_x_coordinates)**2 + (this_y_coordinates - that_y_coordinates)**2)
+                    that_x_coordinates, that_y_coordinates = node.getState()
                 return Solution2d(path, cost)
             
             # Get the neighbors of the node
@@ -187,7 +188,6 @@ class A_asterickSolver(Solver):
                 cost_node_to_neighbor = neighbor.getAction().cost()
                 end_x_coordinates, end_y_coordinates = map2d.getEnd()
                 neighbor_x_coordinates, neighbor_y_coordinates = neighbor.getState()
-                node_x_coordinates, node_y_coordinates = node.getState()
                 cost_neighbor_to_end = sqrt((end_x_coordinates - neighbor_x_coordinates)**2 + (end_y_coordinates - neighbor_y_coordinates)**2)
                 cost_start_to_neighbor = cost_start_to_node + cost_node_to_neighbor + cost_neighbor_to_end
                 
