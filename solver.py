@@ -224,24 +224,24 @@ class A_asteriskSolver(Solver):
     
 class GBFS_Solver(Solver):
     """
-    A class to solve a 2D map problem using Dijkstra's algorithm.
+    A class to solve a 2D map problem using GBFS's algorithm.
     
     Methods:
-    - __init__(): Initializes the DijkstraSolver object.
+    - __init__(): Initializes the GBFS Solver object.
     - solve(map2d: Map2d): Solves the 2D map problem and returns a Solution2d object.
     - _constructPath(node: Node2d): Constructs a path from the start node to the end node.
     """
     
     def __init__(self):
         """
-        Initializes the DijkstraSolver object.
+        Initializes the GBFS Solver object.
         """
         
         super().__init__()
         
     def solve(self, map2d: Map2d) -> Solution2d:
         """
-        Solves the 2D map problem using Dijkstra's algorithm.
+        Solves the 2D map problem using GBFS's algorithm.
         
         Parameters:
         - map2d (Map2d): The 2D map to be solved.
