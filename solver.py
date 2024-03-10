@@ -221,3 +221,88 @@ class A_asteriskSolver(Solver):
             del distance[node]
 
         return None
+    
+class GBFS_Solver(Solver):
+    """
+    A class to solve a 2D map problem using Dijkstra's algorithm.
+    
+    Methods:
+    - __init__(): Initializes the DijkstraSolver object.
+    - solve(map2d: Map2d): Solves the 2D map problem and returns a Solution2d object.
+    - _constructPath(node: Node2d): Constructs a path from the start node to the end node.
+    """
+    
+    def __init__(self):
+        """
+        Initializes the DijkstraSolver object.
+        """
+        
+        super().__init__()
+        
+    def solve(self, map2d: Map2d) -> Solution2d:
+        """
+        Solves the 2D map problem using Dijkstra's algorithm.
+        
+        Parameters:
+        - map2d (Map2d): The 2D map to be solved.
+        
+        Returns:
+        - Solution2d: The solution to the 2D map problem.
+        """
+        
+        # Start measuring runtime
+        start = time.perf_counter()
+        
+        # Dictionary of $node: distance from start$ pair
+        distance: Dict[Node2d, int] = {}
+        
+        # Initialize distance dictionary with start
+        start_node = map2d.getStart()
+        end_node = map2d.getEnd()
+        start_x, start_y = start_node
+        end_x, end_y = end_node
+        
+        start_node = Node2d((start_x, start_y), None , None)
+        end_node = Node2d((end_x, end_y), None , None)
+
+        distance[start_node] = 0
+
+        # Closed nodes
+        closed: list[Node2d] = []
+                
+
+        while len(distance) > 0:
+            # Get the node with the smallest cost from start
+            node, cost_start_to_node = min(distance.items(), key=lambda x: x[1])
+            
+            # Add this node to shortest path tree
+            closed.append(node)
+            
+            # If the node is the end node, return the path
+            if node.getState() == map2d.getEnd():
+                path = self._constructPath(node)
+                
+                # Measure runtime
+                end = time.perf_counter()
+                runtime_milisec = (end - start) * 10**3
+                
+                return Solution2d(path, cost_start_to_node, runtime_milisec)
+            
+            # Get the neighbors of the node
+            neighbors = map2d.getNeighbors(node)
+            
+           # For each neighbor in neighbors list, update their distance
+            for neighbor in neighbors:
+                if neighbor is None or neighbor in closed:
+                    continue
+                if neighbor not in distance:
+                    cost_to_neighbor = neighbor.getAction().cost()
+                    
+                    neighbor_x, neighbor_y = neighbor.getState()
+                    distance[neighbor] = abs(neighbor_x - end_x) + abs(neighbor_y - end_y)
+                    
+                    distance[neighbor] = cost_start_to_node + cost_to_neighbor  # Accumulating cost
+            del distance[node]
+
+        return None
+    
