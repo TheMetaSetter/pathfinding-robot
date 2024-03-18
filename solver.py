@@ -9,7 +9,7 @@ import threading
 
 from map_and_obstacles import Map2d, Node2d
 from solution import Solution2d
-from shapely import Polygon
+from shapely import Polygon, Point
 
 class Solver(ABC):
     """
@@ -186,7 +186,8 @@ class A_asteriskSolver(Solver):
         
         while len(true_cost) > 0:
             # Get the node with the smallest cost from start
-            node, cost_start_to_node = min(g.items(), key=lambda x: x[1])
+            node, _ = min(g.items(), key=lambda x: x[1])
+            cost_start_to_node = true_cost[node]
             
             closed.append(node)
             firstIteration = True
@@ -197,13 +198,13 @@ class A_asteriskSolver(Solver):
                 path = self._constructPath(node)
                 
                 for node in path:
-                    this_x_coordinates, this_y_coordinates = node.getState()
+                    curr_node = node.getState()
                     if (firstIteration):
                         firstIteration = False
-                        that_x_coordinates, that_y_coordinates = node.getState()
+                        prev_node = node.getState()
                         continue
-                    cost += sqrt((this_x_coordinates - that_x_coordinates)**2 + (this_y_coordinates - that_y_coordinates)**2)
-                    that_x_coordinates, that_y_coordinates = node.getState()
+                    cost += self._distance(prev_node, curr_node)
+                    prev_node = node.getState()
                     
                 # Measure runtime
                 end = time.perf_counter()
@@ -222,24 +223,24 @@ class A_asteriskSolver(Solver):
                     continue
                 
                 cost_node_to_neighbor = neighbor.getAction().cost()
-                end_x_coordinates, end_y_coordinates = map2d.getEnd()
-                neighbor_x_coordinates, neighbor_y_coordinates = neighbor.getState()
-                cost_neighbor_to_end = sqrt((end_x_coordinates - neighbor_x_coordinates)**2 
-                                            + (end_y_coordinates - neighbor_y_coordinates)**2)
+                cost_neighbor_to_end = self._distance(neighbor.getState(), map2d.getEnd())
                 cost_start_to_neighbor = cost_start_to_node \
-                                        + cost_node_to_neighbor 
+                                        + cost_node_to_neighbor
                 
                 if neighbor not in true_cost or true_cost[neighbor] > cost_start_to_neighbor:
                     # If the neighbor is already in distance, delete it because its parent will be changed.
                     if neighbor in true_cost:
                         del true_cost[neighbor]
-                        
+
                     # Update the cost from start of the neighbor
                     true_cost[neighbor] = cost_start_to_neighbor
-                    
+
+                    if neighbor in g:
+                        del g[neighbor]
+
                     # Update g dictionary
                     g[neighbor] = cost_start_to_neighbor + cost_neighbor_to_end
-                
+
             # Delete this node from dictionary because it was in closed set.
             del true_cost[node]
             del g[node]
@@ -565,7 +566,7 @@ class GASolver(Solver):
                     map.getWidth(), map.getHeight(), [])
         
         # To avoid extending on the end point, add the end point to obstacle list
-        map2d.addObstacle(Polygon(map.getEnd()))
+        map2d.addObstacle(Point(map.getEnd()))
         
         start_to_first_pickup = None
         while True:
@@ -589,7 +590,7 @@ class GASolver(Solver):
         # Debug
         
         # Remove end point out of list of obstacles
-        map2d.removeLastObstacle(Polygon(map.getEnd()))
+        map2d.removeLastObstacle(Point(map.getEnd()))
         
         # Construct the shortest path from last pickup point to end using A* algorithm
         map2d.setStart(solution[-1])
@@ -620,7 +621,4 @@ class GASolver(Solver):
         except AttributeError:
             pass
         
-        # Debug
-        print("Initial obstacles configuration solved.\n")
-        
-        return Solution2d(path, cost, runtime_milisec)
+        return Solution2d(path, cost, runtime_milisec), generations_averages, generations_bests

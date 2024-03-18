@@ -7,9 +7,10 @@ from map_and_obstacles import Map2d
 from solution import Solution2d
 
 class Visualizer2d:
-    def __init__(self, solution: Solution2d, map: Map2d):
+    def __init__(self, solution: Solution2d, map: Map2d, speed: int = 1000):
         self.__solution = solution
         self.__map = map
+        self.__speed = speed # Delay between frames in miliseconds
         
     def update(self, frame):
         self.ax.clear()  # Clear previous frame
@@ -52,7 +53,7 @@ class Visualizer2d:
         self.ax.grid(True, which='both', color='grey', linewidth=0.5, linestyle='-', alpha=0.3)
 
         # Create an animation
-        anim = FuncAnimation(fig, self.update, frames=len(self.__solution.getTuplePath()), interval=1000, repeat=False)
+        anim = FuncAnimation(fig, self.update, frames=len(self.__solution.getTuplePath()), interval=self.__speed, repeat=False)
         
         if self.__map.getObstaclesSpeed() > 0:
             self.__map.restart()

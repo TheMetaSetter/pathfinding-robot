@@ -7,9 +7,9 @@ if __name__ == "__main__":
     
     map2d = reader.readMap2d()
     
-    solver = GASolver()
+    solver = GASolver(num_generations=500, num_of_parents=200, sol_per_pop=700, mutation_probability=(0.8,0.2))
     solution = map2d.solvedBy(solver=solver)
     solution.showToConsole()
     
-    visualizer = Visualizer2d(map=map2d, solution=solution)
+    visualizer = Visualizer2d(map=map2d, solution=solution, speed = 100)
     visualizer.visualize2d()
