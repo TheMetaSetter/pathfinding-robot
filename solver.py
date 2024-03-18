@@ -47,8 +47,10 @@ class Solver(ABC):
         path.reverse()
         return path
     
-    def __distance(pointA: tuple[int, int], pointB: tuple[int, int]) -> float:
-        pass
+    def _distance(self, pointA: tuple[int, int], pointB: tuple[int, int]) -> float:
+        x_A, y_A = pointA
+        x_B, y_B = pointB
+        return sqrt((x_A - x_B) ** 2 + (y_A - y_B) ** 2)
 class DijkstraSolver(Solver):
     """
     A class to solve a 2D map problem using Dijkstra's algorithm.
@@ -168,17 +170,23 @@ class A_asteriskSolver(Solver):
         start = time.perf_counter()
         
         # Dictionary of $node: distance from start$ pair
-        distance: Dict[Node2d, int] = {}
+        true_cost: Dict[Node2d, int] = {}
         
         # Initialize distance dictionary with start
-        distance[Node2d(map2d.getStart(), None, None)] = 0
+        true_cost[Node2d(map2d.getStart(), None, None)] = 0
+        
+        # Define new distance dictionary
+        g: Dict[Node2d, int] = {}
+        
+        # Initialize g
+        g[Node2d(map2d.getStart(), None, None)] = self._distance(map2d.getStart(), map2d.getEnd())
         
         # Closed nodes
         closed: list[Node2d] = []
         
-        while len(distance) > 0:
+        while len(true_cost) > 0:
             # Get the node with the smallest cost from start
-            node, cost_start_to_node = min(distance.items(), key=lambda x: x[1])
+            node, cost_start_to_node = min(g.items(), key=lambda x: x[1])
             
             closed.append(node)
             firstIteration = True
@@ -219,18 +227,22 @@ class A_asteriskSolver(Solver):
                 cost_neighbor_to_end = sqrt((end_x_coordinates - neighbor_x_coordinates)**2 
                                             + (end_y_coordinates - neighbor_y_coordinates)**2)
                 cost_start_to_neighbor = cost_start_to_node \
-                                        + cost_node_to_neighbor \
-                                        + cost_neighbor_to_end
+                                        + cost_node_to_neighbor 
                 
-                if neighbor not in distance or distance[neighbor] > cost_start_to_neighbor:
+                if neighbor not in true_cost or true_cost[neighbor] > cost_start_to_neighbor:
                     # If the neighbor is already in distance, delete it because its parent will be changed.
-                    if neighbor in distance:
-                        del distance[neighbor]
+                    if neighbor in true_cost:
+                        del true_cost[neighbor]
+                        
                     # Update the cost from start of the neighbor
-                    distance[neighbor] = cost_start_to_neighbor
+                    true_cost[neighbor] = cost_start_to_neighbor
+                    
+                    # Update g dictionary
+                    g[neighbor] = cost_start_to_neighbor + cost_neighbor_to_end
                 
             # Delete this node from dictionary because it was in closed set.
-            del distance[node]
+            del true_cost[node]
+            del g[node]
 
         return None
 
