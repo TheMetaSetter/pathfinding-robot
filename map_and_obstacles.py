@@ -610,3 +610,9 @@ class Map2d:
         self.__delay_time = 1
         self.__obstacles_thread = threading.Thread(target=self.__perform_obstacles_movement, daemon=True)
         self.__obstacles_thread.start()
+        
+    def addObstacle(self, obstacle: Polygon):
+        self.__obstacles.append(obstacle)
+        
+    def removeLastObstacle(self, obstacle: Polygon):
+        self.__obstacles.remove(obstacle)

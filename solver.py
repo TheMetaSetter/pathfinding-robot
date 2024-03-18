@@ -9,6 +9,7 @@ import threading
 
 from map_and_obstacles import Map2d, Node2d
 from solution import Solution2d
+from shapely import Polygon
 
 class Solver(ABC):
     """
@@ -551,6 +552,9 @@ class GASolver(Solver):
                     map.getObstacles(), map.getObstaclesSpeed(), 
                     map.getWidth(), map.getHeight(), [])
         
+        # To avoid extending on the end point, add the end point to obstacle list
+        map2d.addObstacle(Polygon(map.getEnd()))
+        
         start_to_first_pickup = None
         while True:
             start_to_first_pickup = A_asteriskSolver().solve(map2d)
@@ -569,6 +573,11 @@ class GASolver(Solver):
                 if sub_solution is not None:
                     pickup_to_pickup.append(sub_solution)
                     break
+                
+        # Debug
+        
+        # Remove end point out of list of obstacles
+        map2d.removeLastObstacle(Polygon(map.getEnd()))
         
         # Construct the shortest path from last pickup point to end using A* algorithm
         map2d.setStart(solution[-1])
@@ -598,5 +607,8 @@ class GASolver(Solver):
             self.map.obstacles_lock.release()
         except AttributeError:
             pass
+        
+        # Debug
+        print("Initial obstacles configuration solved.\n")
         
         return Solution2d(path, cost, runtime_milisec)
