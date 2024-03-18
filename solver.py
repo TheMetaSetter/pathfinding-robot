@@ -185,10 +185,6 @@ class A_asteriskSolver(Solver):
             
             # If the node is the end node, return the path
             if node.getState() == map2d.getEnd():
-                
-                # Debug
-                print("Found a solution.\n")
-                
                 path = self._constructPath(node)
                 
                 for node in path:
@@ -208,9 +204,6 @@ class A_asteriskSolver(Solver):
             
             # Get the neighbors of the node that are appropriate for the obstacles configuration at this time
             neighbors = map2d.getNeighbors(node)
-            
-            # Debug
-            print(neighbors)
             
             # For each neighbor in neighbors list, update their cost from start (if needed)
             for neighbor in neighbors:
