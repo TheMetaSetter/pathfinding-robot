@@ -162,7 +162,6 @@ class Map2d:
             self.__stop_event = threading.Event()
             self.obstacles_lock = threading.Lock()
             
-            # 
             self.__delay_time = 0.001
             
             # Another thread will handle the movement of the obstacles
@@ -194,7 +193,8 @@ class Map2d:
         >>> solution = map2d.solvedBy(solver)
         """
         
-        self.__delay_time = 0.001
+        if self.__obstacles_speed > 0:
+            self.__delay_time = 0.001
         from solver import Solver  # Moved here to avoid circular import
         return solver.solve(self) if solver is not None else None
     
@@ -438,7 +438,7 @@ class Map2d:
             if new_node is not None:
                 neighbors.append(new_node)
         
-    
+        return neighbors
     
     def validatePickupSequence(self, sequence: list[tuple[int, int]]) -> bool:
         
@@ -448,8 +448,7 @@ class Map2d:
         
         for i in range(len(sequence) - 1):
             curr_line = LineString([sequence[i], sequence[i + 1]])
-            for obstacle in self.__obstacles:
-                if curr_line.intersects(obstacle) or curr_line.touches(obstacle):
+            if curr_line.intersects(self.__obstacle).any() or curr_line.touches(self.__obstacle).any():
                     return False
 
         last_line = LineString([sequence[-1], self.__end])

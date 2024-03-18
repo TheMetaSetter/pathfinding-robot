@@ -209,6 +209,9 @@ class A_asteriskSolver(Solver):
             # Get the neighbors of the node that are appropriate for the obstacles configuration at this time
             neighbors = map2d.getNeighbors(node)
             
+            # Debug
+            print(neighbors)
+            
             # For each neighbor in neighbors list, update their cost from start (if needed)
             for neighbor in neighbors:
                 if neighbor is None:
