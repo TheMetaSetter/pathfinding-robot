@@ -18,8 +18,8 @@ The level of implementation is divided into the following levels:
 ### From your terminal
 ```git clone https://github.com/TheMetaSetter/pathfinding-robot```
 ### From this repo on browser
-
-## Setup the virtual environment
-- Using terminal to navigate to the project repository on your local machine and run this command ```source bin/activate```. Now you are all set to run this project.
+(Unfinished)
+## Install dependencies
+(Unfinished)
 ## Run this project
 - Click on the ```main.py``` file and run the script without changing anything to ensure that the project is working well.
