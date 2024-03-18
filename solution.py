@@ -43,5 +43,8 @@ class Solution2d:
         # Print runtime
         print(f"Runtime: {self.runtime_milisec} miliseconds")
         
-    def getPath(self) -> list[tuple]:
+    def getTuplePath(self) -> list[tuple]:
         return [node.getState() for node in self.path]
+    
+    def getPath(self) -> list[Node2d]:
+        return self.path

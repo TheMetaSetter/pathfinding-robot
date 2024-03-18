@@ -36,11 +36,19 @@ class MapFileReader:
                                  for i in range(0, len(list_coordinates), 2)] # Step of the for loop is 2
             start = tuple_coordinates[0]
             end = tuple_coordinates[1]
-            pick_up_points = tuple_coordinates[2:]
             
-            # Read number of obstacles on a line
+            # Check if there is any pick-up points
+            pick_up_points = None
+            if len(tuple_coordinates) >= 2:
+                pick_up_points = tuple_coordinates[2:]
+            
+            # Read number of obstacles and obstacles speed on a line
             line = f.readline()
-            number_of_obstacles = int(line)
+            try:
+                number_of_obstacles, obstacles_speed = int(line.split(',')[0]), int(line.split(',')[1])
+            except IndexError:
+                number_of_obstacles = int(line)
+                obstacles_speed = 0
             
             # Read obstacles line by line
             obstacles = []
@@ -52,4 +60,4 @@ class MapFileReader:
                                      for i in range(0, len(list_coordinates), 2)]
                 obstacles.append(Polygon(tuple_coordinates))
             
-            return Map2d(start, end, obstacles, width, height, pick_up_points)
+            return Map2d(start, end, obstacles, obstacles_speed, width, height, pick_up_points)

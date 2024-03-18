@@ -1,66 +1,60 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.colors import to_rgba
+from matplotlib.animation import FuncAnimation
 
-from matplotlib.patches import Polygon as MplPolygon
 from map_and_obstacles import Map2d
 from solution import Solution2d
 
 class Visualizer2d:
     def __init__(self, solution: Solution2d, map: Map2d):
-        """
-        Initializes the Visualizer2d object with the solution and map.
-        
-        Args:
-        - solution: Solution2d object representing the solution path
-        - map: Map2d object representing the 2D map with obstacles and pickup points
-        """
-        
         self.__solution = solution
         self.__map = map
+        
+    def update(self, frame):
+        self.ax.clear()  # Clear previous frame
 
-    # Visualize2d method
-    def visualize2d(self):
-        """
-        Visualizes the 2D map and the solution path.
-        
-        This method creates a figure and axis, sets the axis limits based on the map size, 
-        plots the obstacles, pickup points, start and end points, and the solution path.
-        It also adds artistic touches with a blur effect on the grid.
-        """
-        
-        fig, ax = plt.subplots(figsize=(8, 8))  # Create figure and axis
-        
-        # Set axis limits based on map size
-        ax.set_xlim(0, self.__map.getWidth())
-        ax.set_ylim(0, self.__map.getHeight())
-        
-        # Plot the obstacles as black polygons
+        # Reset the plot (similarly to how you initially set it up)
+        self.ax.set_xlim(0, self.__map.getWidth())
+        self.ax.set_ylim(0, self.__map.getHeight())
+        self.ax.set_facecolor(to_rgba('white', alpha=0.5))
+        self.ax.grid(True, which='both', color='grey', linewidth=0.5, linestyle='-', alpha=0.3)
+
+        # Redraw obstacles, pickup points, start and end points
+        # (similar to how you initially drew them, but inside this function)
         for obstacle in self.__map.getObstacles():
-            polygon = patches.Polygon(list(obstacle.exterior.coords), closed=True, fill=True, color='black')
-            ax.add_patch(polygon)
+            self.ax.add_patch(patches.Polygon(list(obstacle.exterior.coords), closed=True, color='black'))
         
-        # Plot the pickup points as blue circles
-        pickup_points = self.__map.getPickUpPoints()
-        for point in pickup_points:
-            ax.scatter(*point, color='blue', zorder=5)
+        # Plot pickup-points
+        for pickup in self.__map.getPickUpPoints():
+            self.ax.add_patch(patches.Circle((pickup[0], pickup[1]), 0.3, color='green'))
         
-        # Plot the start and end points
-        ax.scatter(*self.__map.getStart(), color='green', zorder=5)
-        ax.scatter(*self.__map.getEnd(), color='red', zorder=5)
+        # Plot start and end points
+        start = self.__map.getStart()
+        end = self.__map.getEnd()
+        self.ax.add_patch(patches.Circle((start[0], start[1]), 0.3, color='red'))
+        self.ax.add_patch(patches.Circle((end[0], end[1]), 0.3, color='blue'))
+
+        # For an animated path drawing, adjust to draw up to 'frame' index of your path
+        path = self.__solution.getTuplePath()
+        if frame > 0:
+            for i in range(frame):
+                if i < len(path) - 1:
+                    self.ax.plot([path[i][0], path[i+1][0]], [path[i][1], path[i+1][1]], color='blue')
+
+    def visualize2d(self):
+        fig, self.ax = plt.subplots(figsize=(8, 8))
         
-        # Add artistic touches with a blur effect on the grid
-        ax.set_facecolor(to_rgba('white', alpha=0.5))  # Set a white background with transparency
-        ax.grid(True, which='both', color='grey', linewidth=0.5, linestyle='-', alpha=0.3)  # Soft grid lines with transparency
+        # Initial plot setup, if needed
+        self.ax.set_xlim(0, self.__map.getWidth())
+        self.ax.set_ylim(0, self.__map.getHeight())
+        self.ax.set_facecolor(to_rgba('white', alpha=0.5))
+        self.ax.grid(True, which='both', color='grey', linewidth=0.5, linestyle='-', alpha=0.3)
+
+        # Create an animation
+        anim = FuncAnimation(fig, self.update, frames=len(self.__solution.getTuplePath()), interval=1000, repeat=False)
         
-        # Plot the solution path
-        path = self.__solution.getPath()
-        for i in range(len(path) - 1):
-            start_node = path[i]
-            end_node = path[i + 1]
-            ax.plot([start_node[0], end_node[0]], 
-                    [start_node[1], end_node[1]], 
-                    color='blue', zorder=3)
-            plt.pause(1)  # Pause to create gradual appearance of the path
+        if self.__map.getObstaclesSpeed() > 0:
+            self.__map.restart()
         
-        plt.show()  # Display the plot
+        plt.show()

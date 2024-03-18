@@ -1,4 +1,8 @@
-from shapely.geometry import Polygon, Point
+import time
+from shapely.affinity import translate
+from shapely.geometry import Polygon, Point, LineString
+import threading
+
 from action import Action2d
 from typing import Optional
 # from solver import Solver  # Moved inside the function where it's used to avoid circular import
@@ -131,34 +135,29 @@ class Map2d:
     """
     
     def __init__(self, start: tuple[int, int], end: tuple[int, int], obstacles: 
-                    list[Polygon], width: int, height: int, pickUpPoints: list[tuple[int, int]]):
-        """
-        Initialize a 2D map with obstacles.
-        
-        Args:
-        - start: Start point of the map
-        - end: End point of the map
-        - obstacles: List of obstacles in the map
-        - width: Width of the map
-        - height: Height of the map
-        - pickUpPoints: List of pick-up points
-        
-        Example:
-        >>> start = (0, 0)
-        >>> end = (10, 10)
-        >>> obstacles = [Polygon([(1, 1), (1, 2), (2, 2), (2, 1)])]
-        >>> width = 20
-        >>> height = 20
-        >>> pickUpPoints = [(5, 5), (7, 7)]
-        >>> map2d = Map2d(start, end, obstacles, width, height, pickUpPoints)
-        """
-        
+                    list[Polygon], obstacles_speed: int, width: int, height: int, pickUpPoints: list[tuple[int, int]]):                
         self.__start = start
         self.__end = end
-        self.__obstacles = obstacles
+        self.__obstacles = obstacles # Current obstacles (obstacles with current coordinates)
+        self.__obstacles_speed = obstacles_speed
         self.__width = width
         self.__height = height
         self.__pickUpPoints = pickUpPoints
+        
+        if obstacles_speed > 0:
+            # Attributes for managing obstacles thread
+            self.__stop_event = threading.Event()
+            self.obstacles_lock = threading.Lock()
+            
+            # 
+            self.__delay_time = 0.001
+            
+            # Another thread will handle the movement of the obstacles
+            self.__obstacles_thread = threading.Thread(target=self.__perform_obstacles_movement, daemon=True)
+            self.__obstacles_thread.start()
+            
+            # Save the original state of the obstacles in order to restart the map if needed
+            self.__original_obstacles = obstacles
         
     def solvedBy(self, solver: 'Optional[Solver]') -> 'Optional[Solution2d]':
         """
@@ -182,6 +181,7 @@ class Map2d:
         >>> solution = map2d.solvedBy(solver)
         """
         
+        self.__delay_time = 0.001
         from solver import Solver  # Moved here to avoid circular import
         return solver.solve(self) if solver is not None else None
     
@@ -383,7 +383,7 @@ class Map2d:
         
         # If the new state intersect with any obstacle, then return None
         for obstacle in self.__obstacles:
-            if obstacle.contains(Point(new_state)):
+            if obstacle.contains(Point(new_state)) or obstacle.touches(Point(new_state)):
                 return None
             
         # If the new state is out-of-bound, then return None
@@ -426,4 +426,176 @@ class Map2d:
                 neighbors.append(new_node)
         
         return neighbors
+    
+    
+    def validatePickupSequence(self, sequence: list[tuple[int, int]]) -> bool:
         
+        first_line = LineString([self.__start, sequence[0]])
+        if first_line.intersects(self.__obstacles).any() or first_line.touches(self.__obstacles).any():
+            return False
+        
+        for i in range(len(sequence) - 1):
+            curr_line = LineString([sequence[i], sequence[i + 1]])
+            for obstacle in self.__obstacles:
+                if curr_line.intersects(obstacle) or curr_line.touches(obstacle):
+                    return False
+
+        last_line = LineString([sequence[-1], self.__end])
+        if last_line.intersects(self.__obstacles).any() or last_line.touches(self.__obstacles).any():
+            return False
+        
+        return True
+    
+    def __perform_obstacles_movement(self):
+        """
+        Perform the movement of the obstacles.
+        
+        This method is called by the __init__ method to start a separate thread for the movement of the obstacles.
+        The obstacles are moved every second, alternating between moving to the left and to the right.
+        The speed of the obstacles is determined by the __obstacles_speed attribute.
+        """
+        
+        count = 0
+        while not self.__stop_event.is_set():
+            self.obstacles_lock.acquire()
+            new_obstacles = []
+            # For each second, move the obstacles
+            for obstacle in self.__obstacles:
+                if count % 2 != 0:
+                    # Move the obstacle to the left
+                    obstacle = translate(obstacle, xoff=-self.__obstacles_speed)
+                else:
+                    # Move the obstacle to the right
+                    obstacle = translate(obstacle, xoff=self.__obstacles_speed)
+                new_obstacles.append(obstacle)
+            self.__obstacles = new_obstacles
+            count += 1
+            
+            self.obstacles_lock.release()
+            # Delay for 1 milisecond.
+            time.sleep(self.__delay_time) # This is real implementation so movement can be theoritically faster to make computing be efficient.
+            # In visualization, the delay between movements will be 1 second.
+            
+            
+            
+    def getRandomPickUpSequence(self) -> list[tuple[int, int]]:
+        """
+        Generate a random sequence of pick-up points.
+
+        Returns:
+        - list[tuple[int, int]]: Random sequence of pick-up points
+
+        Example:
+        >>> start = (0, 0)
+        >>> end = (10, 10)
+        >>> obstacles = [Polygon([(1, 1), (1, 2), (2, 2), (2, 1)])]
+        >>> width = 20
+        >>> height = 20
+        >>> pickUpPoints = [(5, 5), (7, 7), (3, 3), (8, 8)]
+        >>> map2d = Map2d(start, end, obstacles, width, height, pickUpPoints)
+        >>> map2d.getRandomPickUpSequence()
+        [(3, 3), (8, 8), (7, 7), (5, 5)]
+        """
+        
+        # From the self.__pickUpPoints, generate a radom sequence of pick-up points
+        import random
+        random_pickup_points = self.__pickUpPoints.copy()
+        random.shuffle(random_pickup_points)
+        return random_pickup_points
+    
+    def setStart(self, start: tuple[int, int]):
+        """
+        Set the start point of the map.
+
+        Args:
+        - start: Start point of the map
+
+        Example:
+        >>> start = (0, 0)
+        >>> end = (10, 10)
+        >>> obstacles = [Polygon([(1, 1), (1, 2), (2, 2), (2, 1)])]
+        >>> width = 20
+        >>> height = 20
+        >>> pickUpPoints = [(5, 5), (7, 7)]
+        >>> map2d = Map2d(start, end, obstacles, width, height, pickUpPoints)
+        >>> map2d.setStart((1, 1))
+        """
+        
+        self.__start = start
+        
+    def setEnd(self, end: tuple[int, int]):
+        """
+        Set the end point of the map.
+
+        Args:
+        - end: End point of the map
+
+        Example:
+        >>> start = (0, 0)
+        >>> end = (10, 10)
+        >>> obstacles = [Polygon([(1, 1), (1, 2), (2, 2), (2, 1)])]
+        >>> width = 20
+        >>> height = 20
+        >>> pickUpPoints = [(5, 5), (7, 7)]
+        >>> map2d = Map2d(start, end, obstacles, width, height, pickUpPoints)
+        >>> map2d.setEnd((10, 20))
+        """
+        
+        self.__end = end
+        
+    def getObstaclesSpeed(self) -> int:
+        """
+        Get the speed of the obstacles.
+
+        Returns:
+        - int: Speed of the obstacles (unit: coordinate/second)
+
+        Example:
+        >>> start = (0, 0)
+        >>> end = (10, 10)
+        >>> obstacles = [Polygon([(1, 1), (1, 2), (2, 2), (2, 1)])]
+        >>> obstacle_speed = 2
+        >>> width = 20
+        >>> height = 20
+        >>> pickUpPoints = [(5, 5), (7, 7)]
+        >>> map2d = Map2d(start, end, obstacles, obstacle_speed, width, height, pickUpPoints)
+        >>> map2d.getObstaclesSpeed()
+        2
+        """
+        
+        return self.__obstacles_speed
+    
+    def __stop_moving_obstacles(self):
+        """
+        Stop the movement of the obstacles.
+        
+        This method sets the stop event, which is used to stop the obstacles thread.
+        """
+        
+        self.__stop_event.set()
+        self.__obstacles_thread.join()
+    
+    def restart(self):
+        """
+        Restart the map.
+
+        This method stops the movement of the obstacles, resets the obstacles to their original state,
+        and starts the movement of the obstacles again.
+
+        Example:
+        >>> start = (0, 0)
+        >>> end = (10, 10)
+        >>> obstacles = [Polygon([(1, 1), (1, 2), (2, 2), (2, 1)])]
+        >>> obstacle_speed = 2
+        >>> width = 20
+        >>> height = 20
+        >>> pickUpPoints = [(5, 5), (7, 7)]
+        >>> map2d = Map2d(start, end, obstacles, obstacle_speed, width, height, pickUpPoints)
+        >>> map2d.restart()
+        """
+        
+        self.__stop_moving_obstacles()
+        self.__obstacles = self.__original_obstacles
+        self.__delay_time = 1
+        self.__obstacles_thread = threading.Thread(target=self.__perform_obstacles_movement, daemon=True)
+        self.__obstacles_thread.start()
