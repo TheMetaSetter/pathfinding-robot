@@ -135,7 +135,20 @@ class Map2d:
     """
     
     def __init__(self, start: tuple[int, int], end: tuple[int, int], obstacles: 
-                    list[Polygon], obstacles_speed: int, width: int, height: int, pickUpPoints: list[tuple[int, int]]):                
+                    list[Polygon], obstacles_speed: int, width: int, height: int, pickUpPoints: list[tuple[int, int]]):
+        """
+        Initialize a 2D map with obstacles.
+        
+        Args:
+        - start (tuple[int, int]): Start point of the map
+        - end (tuple[int, int]): End point of the map
+        - obstacles (list[Polygon]): List of obstacles in the map
+        - obstacles_speed (int): Speed of obstacles
+        - width (int): Width of the map
+        - height (int): Height of the map
+        - pickUpPoints (list[tuple[int, int]]): List of pick-up points
+        """
+        
         self.__start = start
         self.__end = end
         self.__obstacles = obstacles # Current obstacles (obstacles with current coordinates)
@@ -425,7 +438,6 @@ class Map2d:
             if new_node is not None:
                 neighbors.append(new_node)
         
-        return neighbors
     
     
     def validatePickupSequence(self, sequence: list[tuple[int, int]]) -> bool:

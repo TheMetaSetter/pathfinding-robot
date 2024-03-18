@@ -43,6 +43,7 @@ class MapFileReader:
                 pick_up_points = tuple_coordinates[2:]
             
             # Read number of obstacles and obstacles speed on a line
+            # Read number of obstacles and obstacles speed on a line
             line = f.readline()
             try:
                 number_of_obstacles, obstacles_speed = int(line.split(',')[0]), int(line.split(',')[1])
