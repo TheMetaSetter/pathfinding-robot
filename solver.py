@@ -321,7 +321,7 @@ class GBFS_Solver(Solver):
         return None
     
 class GASolver(Solver):
-    def __init__(self, num_generations: int = 100, num_of_parents: int = 5, sol_per_pop: int = 100, mutation_probability: tuple[float, float] = (0.7, 0.3)):
+    def __init__(self, num_generations: int = 75, num_of_parents: int = 20, sol_per_pop: int = 200, mutation_probability: tuple[float, float] = (0.8, 0.2)):
         self.__num_generations: int = num_generations
         self.__num_of_parents: int = num_of_parents
         self.__sol_per_pop: int = sol_per_pop
