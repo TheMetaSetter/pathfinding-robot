@@ -18,8 +18,16 @@ The level of implementation is divided into the following levels:
 ### From your terminal
 ```git clone https://github.com/TheMetaSetter/pathfinding-robot```
 ### From this repo on browser
-(Unfinished)
+- Go to [https://github.com/TheMetaSetter/pathfinding-robot](https://github.com/TheMetaSetter/pathfinding-robot)
+- Click on the green ```<> Code``` button and click ```Open with GitHub Desktop```. Make sure Github Desktop has been installed on your computer. If you haven't install it, follow instructions in this link [https://docs.github.com/en/desktop/installing-and-authenticating-to-github-desktop/installing-github-desktop](https://docs.github.com/en/desktop/installing-and-authenticating-to-github-desktop/installing-github-desktop)
+- Finally, in the GUI of GitHub Desktop, open the repository in your favorite IDE or editor.
 ## Install dependencies
-(Unfinished)
+- In side the repo on your local machine, open the terminal and run ```pip install -r requirements.txt```.
 ## Run this project
-- Click on the ```main.py``` file and run the script without changing anything to ensure that the project is working well.
+- There are several files that you can run to test whether the project works properly.
+- Run ```test_dijkstra_solver.py``` if you want to test the Dijkstra algorithm.
+- Run ```test_a_asterisk_solver.py``` if you want to test the A-star algorithm.
+- Run ```test_gbfs_solver.py``` if you want to test the GBFS algorithm.
+- Run ```test_genetic_algorithm.py``` if you want to test the Genetic algorithm on TSP problem.
+- Run ```evaluate_genetic_algorithm.py``` if you want to evaluate the performance of a set of parameters for Genetic algorithm.
+- You can change the input of each script by modify the string passed to MapFileReader() constructor. For staic-obstacle TSP problem, the sample inputs are located inside the ```input_tsp``` directory. For the basic pathfinding problem, sample inputs are located inside ```input_basic``` directory. We have not implemented the dynamic-obstacle TSP problem, but the sample input for this problem is located in the file ```tsp_dynamic_obstacles.txt```.
