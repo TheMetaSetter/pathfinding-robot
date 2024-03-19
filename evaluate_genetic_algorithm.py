@@ -1,3 +1,5 @@
+# NOTICE: Uncomment the last line in the file solver.py before running this code.
+
 import threading
 import numpy as np
 

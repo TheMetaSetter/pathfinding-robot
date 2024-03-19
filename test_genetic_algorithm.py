@@ -1,3 +1,5 @@
+# NOTICE: Comment the last line in the file solver.py before running this code.
+
 if __name__ == "__main__":
     try:
         from map_file_reader import MapFileReader
