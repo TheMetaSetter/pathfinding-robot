@@ -132,7 +132,7 @@ class DijkstraSolver(Solver):
             # Delete this node from dictionary because it was in closed set.
             del distance[node]
 
-        return None
+        raise Exception("No solution found.")
     
     
 class A_asteriskSolver(Solver):
@@ -245,7 +245,7 @@ class A_asteriskSolver(Solver):
             del true_cost[node]
             del g[node]
 
-        return None
+        raise Exception("No solution found.")
 
 class GBFS_Solver(Solver):
     """
@@ -332,7 +332,7 @@ class GBFS_Solver(Solver):
                     distance[neighbor] = cost_start_to_node + cost_to_neighbor  # Accumulating cost
             del distance[node]
 
-        return None
+        raise Exception("No solution found.")
     
 class GASolver(Solver):
     def __init__(self, num_generations: int = 75, num_of_parents: int = 20, sol_per_pop: int = 200, mutation_probability: tuple[float, float] = (0.8, 0.2)):
@@ -492,67 +492,91 @@ class GASolver(Solver):
         
         return new_population
     
-    def solve(self, map: Map2d):
-        # Check if this is the TSP problem
+    def solve(self, map: Map2d) -> Solution2d:
+        """
+        This method is used to solve the given map using the Genetic Algorithm.
         
-        if map.getPickUpPoints() == []:
-            raise ValueError("GASolver is designed to solve only TSP problem. Please use another solver.")
+        Parameters:
+        map (Map2d): The map to be solved.
         
-        self.map = map
+        Returns:
+        Solution2d: The solution to the map.
         
-        try:
-            # Lock the obstacles configuration to solve the map at this instant moment
-            self.map.obstacles_lock.acquire()
-        except AttributeError:
-            pass
+        Example:
+        >>> from map_file_reader import MapFileReader
+        >>> from solver import GASolver
+        >>> reader = MapFileReader("input_tsp/tsp_static_obstacles_3.txt")
+        >>> map2d = reader.readMap2d()
+        >>> solver = GASolver(num_generations=250, num_of_parents=100, sol_per_pop=1500, mutation_probability=(0.8,0.2))
+        >>> solution = map2d.solvedBy(solver=solver)
+        >>> solution.showToConsole()
+        """
         
-        # Start measuring time
-        start = time.perf_counter()
-        
-        # Population initialization
-        initial_population = self.__init_population()
-        
-        # Select parents
-        parents_list_of_tuple = self.__tournament_selection(initial_population, 
-                                                            self.__num_of_parents, 
-                                                            self.__tournament_size)
-        
-        # Calculate the average of the 4 most recent set of parents from the 4 most recent generation
-        curr_generation = 0
-        x = 0
-        y = 0
-        z = 0
-        t = np.average([parents_list_of_tuple[i][1] 
-                        for i in range(len(parents_list_of_tuple))]) # Calculate the average fitness of the current parents
-        
-        # Testing performance of algorithm
-        generations_averages = []
-        generations_averages.append(t)
-        generations_bests = []
-        generations_bests.append(max(parents_list_of_tuple, key=lambda x: x[1])[1])
-        
-        convergence = (t - x < 0.00001) or (curr_generation > self.__num_generations)
-        while not convergence:
-            new_population: list[list[tuple[int, int]]] = self.__generate_new_population(parents_list_of_tuple)
-            new_population = self.__swap_mutation(new_population)
-            parents_list_of_tuple = self.__tournament_selection(new_population, 
+        solution = None
+        # If there is only one pick-up points, it is obviously the first and the only point will be visited.
+        if len(map.getPickUpPoints()) == 1:
+            solution = map.getPickUpPoints()
+        # But if there is many pick-up points also
+        else:
+            # Check if this is the TSP problem
+            if map.getPickUpPoints() == []:
+                raise ValueError("GASolver is designed to solve only TSP problem. Please use another solver.")
+            
+            self.map = map
+            
+            try:
+                # Lock the obstacles configuration to solve the map at this instant moment
+                self.map.obstacles_lock.acquire()
+            except AttributeError:
+                pass
+            
+            # Start measuring time
+            start = time.perf_counter()
+            
+            # Population initialization
+            initial_population = self.__init_population()
+            
+            # Select parents
+            parents_list_of_tuple = self.__tournament_selection(initial_population, 
                                                                 self.__num_of_parents, 
                                                                 self.__tournament_size)
-            x = y
-            y = z
-            z = t
+            
+            # Calculate the average of the 4 most recent set of parents from the 4 most recent generation
+            curr_generation = 0
+            x = 0
+            y = 0
+            z = 0
             t = np.average([parents_list_of_tuple[i][1] 
-                            for i in range(len(parents_list_of_tuple))])
+                            for i in range(len(parents_list_of_tuple))]) # Calculate the average fitness of the current parents
             
             # Testing performance of algorithm
+            generations_averages = []
             generations_averages.append(t)
+            generations_bests = []
             generations_bests.append(max(parents_list_of_tuple, key=lambda x: x[1])[1])
             
             convergence = (t - x < 0.00001) or (curr_generation > self.__num_generations)
-            
-        # If it is converged, return the best solution
-        solution: tuple[list[tuple[int, int]], float] = max(parents_list_of_tuple, key=lambda x: x[1])
-        solution = solution[0]
+            while not convergence:
+                new_population: list[list[tuple[int, int]]] = self.__generate_new_population(parents_list_of_tuple)
+                new_population = self.__swap_mutation(new_population)
+                parents_list_of_tuple = self.__tournament_selection(new_population, 
+                                                                    self.__num_of_parents, 
+                                                                    self.__tournament_size)
+                x = y
+                y = z
+                z = t
+                t = np.average([parents_list_of_tuple[i][1] 
+                                for i in range(len(parents_list_of_tuple))])
+                
+                # Testing performance of algorithm
+                generations_averages.append(t)
+                generations_bests.append(max(parents_list_of_tuple, key=lambda x: x[1])[1])
+                
+                convergence = (t - x < 0.00001) or (curr_generation > self.__num_generations)
+                
+            # If it is converged, return the best solution
+            solution: tuple[list[tuple[int, int]], float] = max(parents_list_of_tuple, key=lambda x: x[1])
+            solution = solution[0]
         
         # Use the best solution to construct the path between start and end points.
         # Now we need to find shortest path between start and first pickup point, and between each pair of consecutive pickup points
@@ -566,6 +590,7 @@ class GASolver(Solver):
                     map.getWidth(), map.getHeight(), [])
         
         # To avoid extending on the end point, add the end point to obstacle list
+        # If a sub-problem doesn't have any solution, so does the main problem.
         map2d.addObstacle(Point(map.getEnd()))
         
         start_to_first_pickup = None
@@ -573,21 +598,26 @@ class GASolver(Solver):
             start_to_first_pickup = A_asteriskSolver().solve(map2d)
             if start_to_first_pickup is not None:
                 break
+            else:
+                raise Exception("No solution found.")
         
-        # Construct the shortest path between each pair of consecutive pickup points using A* algorithm
-        pickup_to_pickup = []
-        for i in range(len(solution) - 1):
-            map2d.setStart(solution[i])
-            map2d.setEnd(solution[i + 1])
-            
-            while True:
-                sub_solution = A_asteriskSolver().solve(map2d)
-            
-                if sub_solution is not None:
-                    pickup_to_pickup.append(sub_solution)
-                    break
+        # If there are more than 1 obstacles
+        if len(map.getObstacles()) > 1:
+            # Construct the shortest path between each pair of consecutive pickup points using A* algorithm
+            pickup_to_pickup = []
+            for i in range(len(solution) - 1):
+                map2d.setStart(solution[i])
+                map2d.setEnd(solution[i + 1])
                 
-        # Debug
+                while True:
+                    sub_solution = A_asteriskSolver().solve(map2d)
+                
+                    if sub_solution is not None:
+                        pickup_to_pickup.append(sub_solution)
+                        break
+                    else:
+                        raise Exception("No solution found.")
+                        
         
         # Remove end point out of list of obstacles
         map2d.removeLastObstacle(Point(map.getEnd()))
@@ -601,6 +631,8 @@ class GASolver(Solver):
             
             if last_pickup_to_end is not None:
                 break
+            else:
+                raise Exception("No solution found.")
         
         # Concatenate the paths to construct the final path
         path = start_to_first_pickup.getPath()
