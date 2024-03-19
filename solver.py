@@ -621,4 +621,7 @@ class GASolver(Solver):
         except AttributeError:
             pass
         
-        return Solution2d(path, cost, runtime_milisec), generations_averages, generations_bests
+        return Solution2d(path, cost, runtime_milisec)
+    
+        # Comment the line above and use this line when evaluate performance of the genetic algorithm using evaluate_genetic_algorithm.py file
+        # return Solution2d(path, cost, runtime_milisec), generations_averages, generations_bests

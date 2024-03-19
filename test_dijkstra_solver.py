@@ -3,7 +3,7 @@ if __name__ == "__main__":
     from solver import DijkstraSolver
     from visualizer import Visualizer2d
     
-    reader = MapFileReader("input/long_path.txt")
+    reader = MapFileReader("input_basic/long_path.txt")
     
     map2d = reader.readMap2d()
     

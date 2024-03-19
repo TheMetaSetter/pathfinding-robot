@@ -3,7 +3,7 @@ if __name__ == "__main__":
     from solver import GBFS_Solver
     from visualizer import Visualizer2d
     
-    reader = MapFileReader("input/ordinary_path.txt")
+    reader = MapFileReader("input_basic/ordinary_path.txt")
     
     map2d = reader.readMap2d()
     
