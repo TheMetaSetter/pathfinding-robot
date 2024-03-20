@@ -31,3 +31,7 @@ The level of implementation is divided into the following levels:
 - Run ```test_genetic_algorithm.py``` if you want to test the Genetic algorithm on TSP problem.
 - Run ```evaluate_genetic_algorithm.py``` if you want to evaluate the performance of a set of parameters for Genetic algorithm.
 - You can change the input of each script by modify the string passed to MapFileReader() constructor. For static-obstacle TSP problem, the sample inputs are located inside the ```input_tsp``` directory. For the basic pathfinding problem, sample inputs are located inside ```input_basic``` directory. We have not implemented the dynamic-obstacle TSP problem, but the sample input for this problem is located in the file ```tsp_dynamic_obstacles.txt```.
+
+## Video demonstration
+You can follow the video in the link below to clone and run this project using GitHub Desktop.
+[https://youtu.be/vwkVx4LCR_g](https://youtu.be/vwkVx4LCR_g)
