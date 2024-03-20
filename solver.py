@@ -337,6 +337,11 @@ class GBFS_Solver(Solver):
 class GASolver(Solver):
     def __init__(self, num_generations: int = 75, num_of_parents: int = 20, sol_per_pop: int = 200, mutation_probability: tuple[float, float] = (0.8, 0.2)):
         self.__num_generations: int = num_generations
+        
+        # Check if the number of parents is larger than the number of solutions per population
+        if num_of_parents > sol_per_pop:
+            raise ValueError("The number of parents must be less than or equal to the number of solutions per population.")
+        
         self.__num_of_parents: int = num_of_parents
         self.__sol_per_pop: int = sol_per_pop
         self.__mutation_probability: tuple[float, float] = mutation_probability
@@ -653,7 +658,7 @@ class GASolver(Solver):
         except AttributeError:
             pass
         
-        return Solution2d(path, cost, runtime_milisec)
+        # return Solution2d(path, cost, runtime_milisec)
     
         # Comment the line above and use this line when evaluate performance of the genetic algorithm using evaluate_genetic_algorithm.py file
-        # return Solution2d(path, cost, runtime_milisec), generations_averages, generations_bests
+        return Solution2d(path, cost, runtime_milisec), generations_averages, generations_bests
