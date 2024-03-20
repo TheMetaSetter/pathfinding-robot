@@ -22,7 +22,7 @@ The level of implementation is divided into the following levels:
 - Click on the green ```<> Code``` button and click ```Open with GitHub Desktop```. Make sure Github Desktop has been installed on your computer. If you haven't install it, follow instructions in this link [https://docs.github.com/en/desktop/installing-and-authenticating-to-github-desktop/installing-github-desktop](https://docs.github.com/en/desktop/installing-and-authenticating-to-github-desktop/installing-github-desktop)
 - Finally, in the GUI of GitHub Desktop, open the repository in your favorite IDE or editor.
 ## Install dependencies
-- In side the repo on your local machine, open the terminal and run ```pip install -r requirements.txt```.
+- Inside the repo on your local machine, open the terminal and run ```pip install -r requirements.txt```.
 ## Run this project
 - There are several files that you can run to test whether the project works properly.
 - Run ```test_dijkstra_solver.py``` if you want to test the Dijkstra algorithm.
