@@ -162,3 +162,4 @@ cython_debug/
 code.txt
 pyenv.cfg
 *.mov
+*.pdf
