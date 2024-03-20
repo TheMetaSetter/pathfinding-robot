@@ -12,7 +12,7 @@ if __name__ == "__main__":
         solution = map2d.solvedBy(solver=solver)
         solution.showToConsole()
         
-        visualizer = Visualizer2d(map=map2d, solution=solution)
+        visualizer = Visualizer2d(map=map2d, solution=solution, speed=100)
         visualizer.visualize2d()
     except Exception as ex:
         print("Error: ", ex)

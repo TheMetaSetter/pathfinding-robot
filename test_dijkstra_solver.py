@@ -1,4 +1,4 @@
-if __name__ == "__main__"
+if __name__ == "__main__":
     try:
         from map_file_reader import MapFileReader
         from solver import DijkstraSolver

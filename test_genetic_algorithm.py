@@ -6,7 +6,7 @@ if __name__ == "__main__":
         from solver import GASolver
         from visualizer import Visualizer2d
         
-        reader = MapFileReader("input_tsp/tsp_static_obstacles_3.txt")
+        reader = MapFileReader("input_tsp/tsp_static_obstacles_2.txt")
         
         map2d = reader.readMap2d()
         
